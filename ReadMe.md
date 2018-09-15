@@ -1,28 +1,12 @@
 # Overview
 
-The scaffolding for your API implementation includes 7 files
+Enables oracle chatbot to create Autonomous database while chatting with the bot.
 
-1. package.json: This is a standard package.json file.
-  The name, version and main sections are mandatory.
-  You can also include an oracleMobile section that allows you to provide defaults used in your API execution.
-  An empty example of that section is provided.  The 'apis' and 'connectors' sections hold a list of dependencies where:
-  	key = uri of connector or api
-  	value = default version 
+1. A custom component is invoked to start provisioning a database.
 
-2. Your main javascript file.
-  This provides the main body of the scaffold.
-  The functions included in the javascript file define where we are expecting API implementation code to appear.
+2. You need to supply the parameters like compartment OCID, user OCID and tenancy OCID.
 
-3. toolsConfig.json. toolsConfig.json is used by the OMCe command-line development tools.
-   The development tools include a container in which you can run and debug your APIs locally, a testing tool to submit requests
-   to your API implementation and a deployment tool to package your implementation
-   and deploy it to OMCe. Download the command line tools for more information.
-
-In addition, the following supporting files are included:
-* RAML definition of your API
-* Swagger definition of your API
-* ReadMe.md (this file)
-* samples.txt containing code samples.
+3. Once everything is setup then we can create a database over the chat.
 
 API implementations are packaged as npm modules. If you want to run your implementation locally:
 * download and install the OMCe command-line tools included in the SDK
