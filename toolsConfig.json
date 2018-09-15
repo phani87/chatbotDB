@@ -1,0 +1,37 @@
+
+{
+    "apiName":"autodbbot",
+    "apiVersion":"18.2.3",
+    "apiId":"471c5985-5bc8-422c-82bb-e96447c32903",
+    "baseUrl":"https://279948143103473F8B0C883FD71E130B.mobile.ocp.oraclecloud.com:443",
+    "tokenEndpoint":"https://idcs-18bef7d49a8349f594cfe48153b517cb.identity.oraclecloud.com/oauth2/v1/token",
+    "backend":{
+        "backendId":"<YOUR_BACKEND_ID>",
+        "backendName":"<YOUR_BACKEND_NAME>",
+        "backendVersion":"<YOUR_BACKEND_VERSION>",
+        "authorization":{
+            "anonymousKey":"<BACKEND_ANONYMOUS_KEY>",
+            "clientId":"<BACKEND_CLIENT_ID>",
+            "clientSecret":"<BACKEND_CLIENT_SECRET>"
+        }
+    },
+    "tools":{
+        "deployment":{
+            "tempDirectory":"c:\\tmp\\mcs-deploy"
+        },
+        "authorization":{
+            "clientId":"<OMCE_TM_APP_CLIENT_ID>",
+            "clientSecret":"<OMCE_TM_APP_CLIENT_SECRET>"
+        }
+    },
+    "container":{
+        "oracleMobileApiName":"OracleMobileAPI",
+        "port":4000
+    },
+    "tests":{
+        "getComponents":{
+            "method":"GET",
+            "resource":"/components"
+        }
+    }
+}
