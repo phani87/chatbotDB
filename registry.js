@@ -4,6 +4,8 @@ module.exports = {
     //'AgeChecker': require('./pizza/age_checker')
 
     //autodbbot
-   'startdbprovision': require('./autodb/createdb')
+   'startadbprovision': require('./autodb/createAdb'),
+   'startdbprovision': require('./autodb/createDb'),
+   'listAllDatabases' : require('./autodb/listAllDatabases')
   }
 };

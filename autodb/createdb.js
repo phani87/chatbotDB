@@ -1,6 +1,7 @@
 "use strict";
 
-var cadw = require('./createAutonomousDatabase.js');
+var cadw = require('./createAutonomousDatawarehouse');
+var res = '';
 
 module.exports = {
 
@@ -9,7 +10,7 @@ module.exports = {
         "properties": {
             "dbtype": { "type": "string", "required": true },
             "dbname": { "type": "string", "required": true },
-            "dbocpus":{ "type": "string", "required": true },
+            "dbshape":{ "type": "string", "required": true },
             "dbstorage":{ "type": "string", "required": true },
             "dbusername":{ "type": "string", "required": true },
             "dbpasswd" :{ "type": "string", "required": true }
@@ -43,8 +44,10 @@ module.exports = {
         //var dbusername = conversation.properties().dbusername;
         var dbpasswd = conversation.properties().dbpasswd;
 
-        await cadw.createADW(dbname, dbpasswd, dbocpus, dbstorage, function (response){conversation.reply(`done creating db : ${response.dbName}`);});
-        
+        //await cadw.createADW(dbname, dbpasswd, dbocpus, dbstorage, function (response){res = response;});
+
+        console.log(res);
+        conversation.reply(`done creating db : ${res}`);
         conversation.transition();
 
         done();

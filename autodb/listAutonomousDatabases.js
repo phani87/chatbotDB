@@ -7,11 +7,19 @@ var https = require('https');
 //Create autonomous database ATP 
 
 
-function getATP(compartmentId, callback) {
-
+function listStatus(dbt, callback) {
+    var dbType = '';
+    if(dbt == 'Autonomous Datawarehouse'){
+        dbType = 'autonomousDataWarehouses';
+    }else if (dbt == 'Autonomous Transaction Processing '){
+        dbType = 'autonomousDatabases';
+    }else {
+        dbType ='databases';
+    }
+    console.log('Database Type >>>> ', dbType);
     var options = {
-        host: regions.dbPhoenixRegion,
-        path: '/20160918/autonomousDataWarehouses?'+'compartmentId='+ compartmentId,
+        host: regions.dbAshburnRegion,
+        path: '/20160918/'+dbType+'?'+'compartmentId='+ auth.compartmentId,
         method: 'GET',
         headers: {
             "Content-Type": "application/json",
@@ -30,24 +38,6 @@ function getATP(compartmentId, callback) {
     request.end();
 };
 
-
-// test the above functions
-console.log("GET USER:");
-
-headers.getUser(auth.authUserId, function(data) {
-    console.log(data);
-
-   var compartment = auth.DBPMCompartment;
-
-    console.log("\nListing Autonomous Databases:");
-
-    // TODO: replace this with a compartment you have access to
-    
-    getATP(compartment,function(data) {
-        
-        console.log(data);
-    });
-
-
-   
-});
+module.exports = {
+    listStatus : listStatus
+};

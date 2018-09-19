@@ -1,0 +1,209 @@
+metadata:
+  platformVersion: "1.0"
+main: true
+name: "AutoDBBot"
+context:
+  variables:
+    dbtype: "DBType"
+    dbname: "string"
+    dbshape : "DBShape"
+    adbtype : "ADBType"
+    adbstorage: "string"
+    adbocpus: "string"
+    adbname : "string"
+    adbusername : "AdbUsername"
+    adbdisplayname : "string"
+    dbusername: "string"
+    dbpasswd : "string"
+    adbpasswd : "string"
+    dbpdb : "string"
+    answer: "answer"
+    iResult: "nlpresult"
+states:
+  intent:
+    component: "System.Intent"
+    properties:
+      variable: "iResult"
+      confidenceThreshold: 0.4
+      optionsPrompt: "Hey, what can I do for you?"   
+    transitions:
+      actions:
+        StartDBProvisioning: "startdb"
+        CheckStatus : "listDbstatus"
+        CancelProvisioning: "canceldb"
+        unresolvedIntent: "unresolved"
+  startdb:
+    component: "System.List"
+    properties:
+      options: "${answer.type.enumValues}"
+      prompt: "Do you want to start DB provisioning ?"
+      variable : "answer"
+    transitions: 
+      actions:
+        checktostart: "checktostart"
+  checktostart:
+    component: "System.ConditionEquals"
+    properties:
+      variable: "answer"
+      source : "${answer.value}"
+      value: "No"
+    transitions:
+      actions:
+        equal: "canceldb"
+        notequal: "getDbtype"
+  listDbstatus:
+    component : "System.List"
+    properties:
+      variable: "${dbtype.type.enumValues}"
+      prompt: "Check status for which kind of database ?"
+      variable : "statuschkdbtype"
+    transitions: {}
+  listAllStatus:
+    component: listAllDatabases 
+    properties:
+      statuschkdbtype: "${statuschkdbtype.value}"
+    transitions:
+      actions: 
+        done : "done"
+  getDbtype:
+    component: "System.List"
+    properties:
+      options: "${dbtype.type.enumValues}"
+      prompt: "What type of DB you want to provision ?"
+      variable: "dbtype"
+    transitions: {}
+  conditionEquals:
+    component: "System.ConditionEquals"
+    properties:
+      variable: "dbtype" 
+      source: "${dbtype.value}"
+      value: "Database on VM"
+    transitions:
+      actions:
+        equal: "getDbname" 
+        notequal: "getADbtype"
+  getADbtype:
+    component: "System.List"
+    properties:
+      options: "${adbtype.type.enumValues}"
+      prompt: "What type of ADB you want to provision ?"
+      variable: "adbtype"
+    transitions: {}
+  getAdbDisplayname:
+    component: "System.Text"
+    properties:
+      prompt: "What is the display name of your Autonomous DB?"
+      variable: "adbdisplayname"
+    transitions: {}
+  getAdbname:
+    component: "System.Text"
+    properties:
+      prompt: "What is name of your Autonomous DB?"
+      variable: "adbname"
+    transitions: {}
+  getADbocpus :
+    component: "System.Text"
+    properties:
+      prompt: "How many OCPUs? Note: Max OCPUs <= 128"
+      variable: "adbocpus"
+    transitions: {}
+  getADbstorage :
+    component: "System.Text"
+    properties:
+      prompt: "How much Storage? Note: Max Storage <= 128 TB"
+      variable: "adbstorage"
+    transitions: {}
+  getAdbusername:
+    component: "System.Text"
+    properties:
+      prompt: "Your ADB username is admin"
+      variable: "adbusername"
+    transitions: {}
+  getAdbpwd :
+    component: "System.Text"
+    properties:
+      prompt: "Set you DB admin password. It has to be 12 characters long, 2 Capital Letters, 2 Small Letters, 2 Special Characters. ex. WElcome12_34#"
+      variable: "adbpasswd"
+    transitions: {}
+  adbprovision:
+    component: startadbprovision 
+    properties:
+      adbtype: "${adbtype.value}"
+      adbdisplayname : "${adbdisplayname.value}"
+      adbname: "${adbname.value}"
+      adbocpus: "${adbocpus.value}"
+      adbstorage: "${adbstorage.value}"
+      adbusername: "${adbusername.value}"
+      adbpasswd : "${adbpasswd.value}"
+    transitions:
+      actions: 
+        done : "done"
+  #adbprovision:
+    #component: "System.Output" 
+    #properties:
+      #text : "adb type : ${adbtype.value}"
+      #dbname: "${dbname.value}"
+      #dbshape: "${dbshape.value}"
+      #dbstorage: "${adbstorage.value}"
+      #dbusername: "${adbusername.value}"
+      #dbpasswd : "${dbpasswd.value}"
+    transitions:
+      actions:
+        done: "done"
+  getDbname:
+    component: "System.Text"
+    properties:
+      prompt: "What is name of your DB?"
+      variable: "dbname"
+    transitions: {}
+  getDbpdbs :
+    component: "System.Text"
+    properties:
+      prompt: "What is name of your PDB?"
+      variable: "dbpdb"
+    transitions: {}
+  getShape :
+    component: "System.List"
+    properties:
+      options: "${dbshape.type.enumValues}"
+      prompt: "Available VM Shapes?"
+      variable: "dbshape"
+    transitions: 
+      actions :
+        getDbpwd : "getDbpwd"
+  getDbpwd :
+    component: "System.Text"
+    properties:
+      prompt: "Set you DB admin password. It has to be 12 characters long, 2 Capital Letters, 2 Small Letters, 2 Special Characters. ex. WElcome12_34#"
+      variable: "dbpasswd"
+    transitions: {}
+  dbprovision:
+    component: startdbprovision 
+    properties:
+      dbtype: "${adbtype.value}"
+      dbname: "${dbname.value}"
+      dbshape: "${dbshape.value}"
+      dbstorage: "${adbstorage.value}"
+      dbusername: "${adbusername.value}"
+      dbpasswd : "${dbpasswd.value}"
+    transitions:
+      actions:
+        done: "done"
+  canceldb:
+    component: "System.Output"
+    properties:
+      text: "Your DB provisioning is stopped"
+    transitions:
+      return: "canceldb"
+  done:
+    component: "System.Output" 
+    properties:
+      text: "Do you want something else?"
+    transitions:
+      return: "done"    
+  unresolved:
+    component: "System.Output"
+    properties:
+      text: "I don't understand. What do you want to do?"
+    transitions:
+      return: "unresolved"

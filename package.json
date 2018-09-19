@@ -4,6 +4,7 @@
   "description": "this creates adb",
   "main": "autodbbot.js",
   "dependencies": {
+    "deasync": "^0.1.13",
     "http-signature": "^1.2.0",
     "joi": "^9.2.0",
     "jssha": "^2.3.1"

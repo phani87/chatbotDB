@@ -1,65 +1,61 @@
 /*
     Version 1.1
 
-    Author: phani.turlapati@oracle.com
+    Author: kris.bhanushali@oracle.com
     
-    Create an Autonomous Datawarehousing service
+    Create an Autonomous Transaction Processing Service
 
     Before running this example, install necessary dependencies by running:
     npm install http-signature jssha
 */
-
-var auth =  require('./auth.js');
+var auth = require('./auth.js');
 var regions = require('./regions.js');
 var headers = require('./headers.js');
 var https = require('https');
-//Create autonomous database ADW 
-//'WElCome123_34#', '1', '1',
-function createADW(dbname, dbpasswd, dbocpus, dbstorage, callback) {
-    console.log('dbname---->',dbname)
+//Create autonomous database ATP 
+
+function createATP(dbdisplayname, dbname, dbpasswd, dbocpus, dbstorage,callback) {
+    console.log('Creating ATP');
 
 var body = JSON.stringify({
-  "compartmentId" : auth.compartmentId,
-  "displayName" : "killllleeerrrr",
-  "dbName" : dbname,
-  "adminPassword" :dbpasswd,
-  "cpuCoreCount" : dbocpus,
-  "dataStorageSizeInTBs" : dbstorage
+    "compartmentId" : auth.compartmentId,
+    "displayName" : dbdisplayname,
+    "dbName" : dbname,
+    "adminPassword" :dbpasswd,
+    "cpuCoreCount" : dbocpus,
+    "dataStorageSizeInTBs" : dbstorage
 });
 var options = {
         host: regions.dbAshburnRegion,
-        path: '/20160918/autonomousDataWarehouses',
+        path: '/20160918/autonomousDatabases',
         method: 'POST',
         headers: {
             "Content-Type": "application/json"
         }
     };
-
 var request = https.request(options, headers.handleRequest(callback));
 
-headers.sign(request, {
-    body: body,
-    privateKey: auth.privateKey,
-    keyFingerprint: auth.keyFingerprint,
-    tenancyId: auth.tenancyId,
-    userId: auth.authUserId
-});
+    headers.sign(request, {
+        body: body,
+        privateKey: auth.privateKey,
+        keyFingerprint: auth.keyFingerprint,
+        tenancyId: auth.tenancyId,
+        userId: auth.authUserId
+    });
 
-request.end(body);
-
+    request.end(body);
 };
-
 
 // headers.getUser(auth.authUserId, function(data) {
 //     console.log(data);
 
 
-//     console.log("\nCREATING ADWC Service:");
+//     console.log("\nCREATING ATP Service:");
 
     
-//      createADW('killerdb','WElcome12_34#', '1', '1', function(data) {
-//          console.log(data);
-//      });
+//     createATP(function(data) {
+//         console.log(data);
+//     });
 
 // });
 
@@ -67,9 +63,8 @@ request.end(body);
 //createADW('killerdb','WElcome12_34#', '1', '1', function (response){console.log(response)});
 
 module.exports = {
-    createADW : createADW
+    createATP : createATP
 };
-
 
 
    
