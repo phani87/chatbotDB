@@ -1,8 +1,9 @@
 "use strict";
 
-var status = require('./listAutonomousDatabases');
+var oci = require( './oci' );
+var auth = require('./auth');
 
-
+//oci.database.autonomousDataWarehouse.list( auth.authorization, auth.compOCID, function(data){console.log(data);} );
 
 module.exports = {
 
@@ -14,31 +15,48 @@ module.exports = {
         "supportedActions": []
     }),
 
-    invoke:(conversation, done) => {
-        var doneAsync = false;
-        var result;
-        var res=null;
-        var dbtype = conversation.properties().dbtype;
-        console.log('Calling List Status Method')
-        console.log('ADB TYep>>>>>>>' , dbtype);
-        status.listStatus(dbtype, function (response){ 
-            result = [];
-            //conversation.reply(`List of databases : ${JSON.stringify(response.)}`);
-           // console.log('<<Im here>>'+JSON.stringify(response));
-           for(var i=0; i<response.length; i++){
-            result.push(response[i].dbName); 
-            doneAsync = true;   
-            }
-        });
-        require('deasync').loopWhile(function(){return !doneAsync;});
-
-        conversation.reply({text: result});
-        console.log('RESULT>>>>>>>>>',JSON.stringify(result));
+    invoke: (conversation, done) => {
+         console.log('Calling List Status Method')
+         var doneAsync = false;
+         var result;
+         var dbtype = conversation.properties().dbtype;
+         if (dbtype == 'Autonomous Datawarehouse') {
+                    oci.database.autonomousDataWarehouse.list( auth.authorization, {compartmentId: auth.compOCID }, function(response){result = response; doneAsync = true;});
+                    require('deasync').loopWhile(function(){return !doneAsync;});
+                } else if (dbtype == 'Autonomous Transaction Processing'){
+                    oci.database.autonomousDatabase.list( auth.authorization, {compartmentId: auth.compOCID }, function(response){result = response; doneAsync = true;});
+                    require('deasync').loopWhile(function(){return !doneAsync;});
+                }else {
+                    conversation.reply({text: 'Please select appropriate option'});
+                }
+        for(var j =0; j< result.length; j++){
+            conversation.reply({text: (j+1)+'. DBName:'+result[j].dbName + '| Status:'+ result[j].lifecycleState});
+        }
         
-        //conversation.reply(`List of databases : ${JSON.stringify(result)}`);
         conversation.transition();
-
         done();
     },
+
+//     invoke: (dbtype) => {
+//         console.log('Calling List Status Method')
+//         var doneAsync = false;
+//         var result;
+//         //var dbtype = conversation.properties().dbtype;
+//         if (dbtype == 'Autonomous Datawarehouse') {
+//                    oci.database.autonomousDataWarehouse.list( auth.authorization, {compartmentId: auth.compOCID }, function(response){result = response; doneAsync = true;});
+//                    require('deasync').loopWhile(function(){return !doneAsync;});
+//                } else if (dbtype == 'Autonomous Transaction Processing'){
+//                    oci.database.autonomousDatabase.list( auth.authorization, {compartmentId: auth.compOCID }, function(response){result = response; doneAsync = true;});
+//                    require('deasync').loopWhile(function(){return !doneAsync;});
+//                }else {
+//                 console.log({text: 'Please select appropriate option'});
+//                }
+//        for(var j =0; j< result.length; j++){
+//            console.log((j+1)+'. DBName:'+result[j].dbName + '| Status:'+ result[j].lifecycleState);
+//        }
+//    },
+
+
     
 };
+

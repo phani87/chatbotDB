@@ -14,8 +14,16 @@ var headers = require('./headers.js');
 var https = require('https');
 //Create autonomous database ATP 
 
-function createATP(dbdisplayname, dbname, dbpasswd, dbocpus, dbstorage,callback) {
+function createADB(dbt, dbdisplayname, dbname, dbpasswd, dbocpus, dbstorage,callback) {
     console.log('Creating ATP');
+    var dbType = '';
+    if(dbt == 'Autonomous Datawarehouse'){
+        dbType = 'autonomousDataWarehouses';
+    }else if (dbt == 'Autonomous Transaction Processing '){
+        dbType = 'autonomousDatabases';
+    }else {
+        dbType ='databases';
+    }
 
 var body = JSON.stringify({
     "compartmentId" : auth.compartmentId,
@@ -27,7 +35,7 @@ var body = JSON.stringify({
 });
 var options = {
         host: regions.dbAshburnRegion,
-        path: '/20160918/autonomousDatabases',
+        path: '/20160918/'+dbt,
         method: 'POST',
         headers: {
             "Content-Type": "application/json"
@@ -63,7 +71,7 @@ var request = https.request(options, headers.handleRequest(callback));
 //createADW('killerdb','WElcome12_34#', '1', '1', function (response){console.log(response)});
 
 module.exports = {
-    createATP : createATP
+    createADB : createADB
 };
 
 

@@ -51,20 +51,6 @@ states:
       actions:
         equal: "canceldb"
         notequal: "getDbtype"
-  listDbstatus:
-    component : "System.List"
-    properties:
-      variable: "${dbtype.type.enumValues}"
-      prompt: "Check status for which kind of database ?"
-      variable : "statuschkdbtype"
-    transitions: {}
-  listAllStatus:
-    component: listAllDatabases 
-    properties:
-      statuschkdbtype: "${statuschkdbtype.value}"
-    transitions:
-      actions: 
-        done : "done"
   getDbtype:
     component: "System.List"
     properties:
@@ -189,6 +175,25 @@ states:
     transitions:
       actions:
         done: "done"
+  listDbstatus:
+    component : "System.List"
+    properties:
+      options: "${dbtype.type.enumValues}"
+      prompt: "Check status for which kind of database ?"
+      variable : "dbtype"
+    transitions: {}
+  checkADbtype:
+    component: "System.List"
+    properties:
+      options: "${adbtype.type.enumValues}"
+      prompt: "What kinda ADB you want to check ?"
+      variable: "adbtype"
+    transitions: {}
+  listAllStatus:
+    component: listAllDatabases 
+    properties:
+      dbtype: "${adbtype.value}"
+    transitions: {}
   canceldb:
     component: "System.Output"
     properties:
