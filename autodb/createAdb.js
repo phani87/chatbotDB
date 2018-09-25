@@ -1,8 +1,8 @@
 "use strict";
 
-//var cadb = require('./createAutonomousDatawarehouse');
-var cadb = require('./createAutonomousDatabase');
-var res = '';
+var oci = require( './oci' );
+var auth = require('./auth');
+
 
 module.exports = {
 
@@ -20,8 +20,7 @@ module.exports = {
         "supportedActions": []
     }),
 
-    invoke: async (conversation, done) => {
-     
+     invoke: (conversation, done) => {
         var adbtype = conversation.properties().adbtype;
         var adbdisplayname = conversation.properties().adbdisplayname; 
         var adbname = conversation.properties().adbname;
@@ -29,28 +28,47 @@ module.exports = {
         var adbstorage = conversation.properties().adbstorage;
         var adbusername = conversation.properties().adbusername;
         var adbpasswd = conversation.properties().adbpasswd;
+        var doneAsync = false;
+
+        //----------------------------------------------------------------
+        //Testing Values
+        //----------------------------------------------------------------
+        // var adbtype = 'Autonomous Transaction Processing';
+        // var adbdisplayname = 'trial2'; 
+        // var adbname = 'trial2';
+        // var adbocpus = '1';
+        // var adbstorage = '1';
+        // //var adbusername = conversation.properties().adbusername;
+        // var adbpasswd = 'WElCOme12_34#';
+        //-----------------------------------------------------------------
+
         var db = 'Autonomous Datawarehouse';
-        console.log('ADB TYep>>>>>>>' , adbtype);
-        //cadb.createADW(adbname, adbpasswd, adbocpus, adbstorage, function (response){res = response;});
+        var result;
 
-        cadb.createADB(adbtype,adbname, adbpasswd, adbocpus, adbstorage, function (response){ 
-            result = [];
-            //conversation.reply(`List of databases : ${JSON.stringify(response.)}`);
-           // console.log('<<Im here>>'+JSON.stringify(response));
-           for(var i=0; i<response.length; i++){
-            result.push(response[i].dbName); 
-            doneAsync = true;   
-            }
-        });
-        require('deasync').loopWhile(function(){return !doneAsync;});
+        var dbBody = {
+            adminPassword :adbpasswd,
+            compartmentId : auth.compOCID,
+            cpuCoreCount: adbocpus,
+            dataStorageSizeInTBs : adbstorage,
+            dbName : adbname,
+            displayName : adbdisplayname
+        }
 
-        // if(adbtype == db){
-        //     await cadw.createADW(adbdisplayname, adbname, adbpasswd, adbocpus, adbstorage, function (response){res = response;});
-        // }else {
-        //     await catp.createATP(adbdisplayname, adbname, adbpasswd, adbocpus, adbstorage, function (response){res = response;});
-        // }
-        console.log('RESULT>>>>>>>>>',res);
-        conversation.reply(`done creating db : ${res.dbName}`);
+        var parameters = {
+            body : dbBody
+        } 
+
+        if (adbtype == 'Autonomous Datawarehouse') {
+            oci.database.autonomousDataWarehouse.create( auth.authorization, parameters, function(response){result = response; doneAsync = true;});
+            require('deasync').loopWhile(function(){return !doneAsync;});
+        } else if (adbtype == 'Autonomous Transaction Processing'){
+            oci.database.autonomousDatabase.create( auth.authorization, parameters, function(response){result = response; doneAsync = true;});
+            require('deasync').loopWhile(function(){return !doneAsync;});
+        }else {
+            conversation.reply({text: 'Please select appropriate option'});
+        }
+
+        conversation.reply(`done creating db : ${JSON.stringify(result.dbName)}`);
         conversation.transition();
 
         done();

@@ -2,6 +2,7 @@ module.exports = {
   components: {
    'startadbprovision': require('./autodb/createAdb'),
    'startdbprovision': require('./autodb/createDb'),
-   'listAllDatabases' : require('./autodb/listAllDatabases')
+   'listAllDatabases' : require('./autodb/listAllDatabases'),
+   'checkStatusofDb' : require('./autodb/checkStatusofDb')
   }
 };
