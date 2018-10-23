@@ -5,21 +5,46 @@ name: "AutoDBBot"
 context:
   variables:
     dbtype: "DBType"
-    dbname: "string"
-    dbshape : "DBShape"
     adbtype : "ADBType"
     adbstorage: "string"
     adbocpus: "string"
     adbname : "string"
     adbusername : "AdbUsername"
     adbdisplayname : "string"
+    
     dbusername: "string"
     dbpasswd : "string"
     adbpasswd : "string"
-    dbpdb : "string"
+    dbdisplayname: "string"
+    abltydomainslist : "string"
+    selectedabltydomains : "string"
+   
+    dbedition : "DBEdition"
+    seleteddbedition : "string"
+    dbshape : "string"
+    selecteddbshape : "string"
+    dbname : "string"
+    dbbackup : "DBBackup"
+    dbhostname : "string"
+    dbversion : "string"
+    selecteddbversion : "string"
+    subnets : "string"
+    selectedsubnets : "string"
+    dbssh : "string"
+    dbInitialStorage : "string"
+    
     answer: "answer"
+    dblist: "string"
+    dbchkstatus : "string"
     iResult: "nlpresult"
 states:
+  Greeting:
+    component: System.Output
+    transitions:
+      next: intent
+    properties:
+      text:  "Hello ${profile.firstName} ${profile.lastName}, how can I help you today?"
+    transitions: {}
   intent:
     component: "System.Intent"
     properties:
@@ -66,7 +91,7 @@ states:
       value: "Database on VM"
     transitions:
       actions:
-        equal: "getDbname" 
+        equal: "getDbDisplayname" 
         notequal: "getADbtype"
   getADbtype:
     component: "System.List"
@@ -121,60 +146,9 @@ states:
       adbstorage: "${adbstorage.value}"
       adbusername: "${adbusername.value}"
       adbpasswd : "${adbpasswd.value}"
-    transitions:
-      actions: 
-        done : "done"
-  #adbprovision:
-    #component: "System.Output" 
-    #properties:
-      #text : "adb type : ${adbtype.value}"
-      #dbname: "${dbname.value}"
-      #dbshape: "${dbshape.value}"
-      #dbstorage: "${adbstorage.value}"
-      #dbusername: "${adbusername.value}"
-      #dbpasswd : "${dbpasswd.value}"
-    transitions:
-      actions:
-        done: "done"
-  getDbname:
-    component: "System.Text"
-    properties:
-      prompt: "What is name of your DB?"
-      variable: "dbname"
-    transitions: {}
-  getDbpdbs :
-    component: "System.Text"
-    properties:
-      prompt: "What is name of your PDB?"
-      variable: "dbpdb"
-    transitions: {}
-  getShape :
-    component: "System.List"
-    properties:
-      options: "${dbshape.type.enumValues}"
-      prompt: "Available VM Shapes?"
-      variable: "dbshape"
     transitions: 
-      actions :
-        getDbpwd : "getDbpwd"
-  getDbpwd :
-    component: "System.Text"
-    properties:
-      prompt: "Set you DB admin password. It has to be 12 characters long, 2 Capital Letters, 2 Small Letters, 2 Special Characters. ex. WElcome12_34#"
-      variable: "dbpasswd"
-    transitions: {}
-  dbprovision:
-    component: startdbprovision 
-    properties:
-      dbtype: "${adbtype.value}"
-      dbname: "${dbname.value}"
-      dbshape: "${dbshape.value}"
-      dbstorage: "${adbstorage.value}"
-      dbusername: "${adbusername.value}"
-      dbpasswd : "${dbpasswd.value}"
-    transitions:
-      actions:
-        done: "done"
+      next: "phani"
+      
   listDbstatus:
     component : "System.List"
     properties:
@@ -194,18 +168,158 @@ states:
     properties:
       dbtype: "${adbtype.value}"
     transitions: {}
+  dblists :
+    component : "System.List"
+    properties :
+      options : "${dblist.value}"
+      prompt: "Select the database for more details"
+      variable : "dbchkstatus"
+    transitions: 
+        next: "phani"
+      
+
+#Database on VM
+
+  getDbDisplayname:
+    component: "System.Text"
+    properties:
+      prompt: "What is the display name of the Database?"
+      variable: "dbdisplayname"
+    transitions: {}
+    
+  getAvailabilityDomains:
+    component: listAvailabilityDomains
+    transitions: {}
+  showAvailablityDomains :
+    component : "System.List"
+    properties :
+      options : "${abltydomainslist.value}"
+      prompt: "Select the Availability Domain"
+      variable : "selectedabltydomains"
+    transitions: {}
+    
+  getDbShapes:
+    component: listDbShapes
+    properties:
+       selectedabltydomains: "${selectedabltydomains.value}"
+    transitions: {}
+  showDbShapes :
+    component : "System.List"
+    properties :
+      options : "${dbshape.value}"
+      prompt: "Select DB Shape"
+      variable : "selecteddbshape"
+    transitions: {}
+    
+  
+  getDbEdition :
+    component : "System.List"
+    properties :
+      options : "${dbedition.type.enumValues}"
+      prompt: "Select DB Edition"
+      variable : "seleteddbedition"
+    transitions: {}
+    
+  getDbName:
+    component : "System.Text"
+    properties :
+      prompt: "Set DB Name"
+      variable : "dbname"
+    transitions: {}
+  
+  getDbpwd :
+    component: "System.Text"
+    properties:
+      prompt: "Set you DB admin password. It has to be 12 characters long, 2 Capital Letters, 2 Small Letters, 2 Special Characters. ex. WElcome12_34#"
+      variable: "dbpasswd"
+    transitions: {}
+  
+  getDbBackup:
+    component : "System.List"
+    properties :
+      options : "${dbbackup.type.enumValues}"
+      prompt: "Do you want DB Backup"
+      variable : "dbbackup"
+    transitions: {}
+ 
+  getHostNamePrefix :
+    component: "System.Text"
+    properties:
+      prompt: "Set hostname"
+      variable: "dbhostname"
+    transitions: {}
+  
+  getDbVersion:
+    component: listDbVersion
+    properties:
+      selecteddbshape : "${selecteddbshape.value}"
+    transitions: {}
+  showDbVersions :
+    component : "System.List"
+    properties :
+      options : "${dbversion.value}"
+      prompt: "Select DB Version"
+      variable : "selecteddbversion"
+    transitions: {}
+    
+  getSubnet:
+    component: listSubnets
+    transitions: {}
+  showSubnets :
+    component : "System.List"
+    properties :
+      options : "${subnets.value}"
+      prompt: "Select Subnets"
+      variable : "selectedsubnets"
+    transitions: {}
+  
+  getSSH :
+    component: "System.Text"
+    properties:
+      prompt: "Set SSH public key. Copy paste the private key here."
+      variable: "dbssh"
+    transitions: {}
+    
+  getInitialStorage :
+    component: "System.Text"
+    properties:
+      prompt: "Set Initial Storage. Choose from 256, 512, 1024, 2048, 4096"
+      variable: "dbInitialStorage"
+    transitions: {}
+  
+  createDB: 
+    component: createDb
+    properties:
+      selectedabltydomains : "${selectedabltydomains.value}" 
+      seleteddbedition : "${seleteddbedition.value}" 
+      dbpasswd : "${dbpasswd.value}" 
+      dbname : "${dbname.value}" 
+      dbbackup : "${dbbackup.value}" 
+      selecteddbversion : "${selecteddbversion.value}" 
+      dbdisplayname : "${dbdisplayname.value}" 
+      dbhostname : "${dbhostname.value}" 
+      selecteddbshape : "${selecteddbshape.value}" 
+      selectedsubnets : "${selectedsubnets.value}" 
+      dbssh : "${dbssh.value}"
+      dbInitialStorage : "${dbInitialStorage.value}"
+    transitions: {}
+  
+ 
+  
+   
+# Continue the flow   
+  phani:
+    component: "System.Output" 
+    properties:
+      text: "Do you want something else?"
+    transitions:
+      return: "intent"
   canceldb:
     component: "System.Output"
     properties:
       text: "Your DB provisioning is stopped"
     transitions:
       return: "canceldb"
-  done:
-    component: "System.Output" 
-    properties:
-      text: "Do you want something else?"
-    transitions:
-      return: "done"    
   unresolved:
     component: "System.Output"
     properties:

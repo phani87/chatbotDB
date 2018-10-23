@@ -69,8 +69,8 @@ module.exports = {
         }
 
         conversation.reply(`done creating db : ${JSON.stringify(result.dbName)}`);
+        conversation.keepTurn(true);
         conversation.transition();
-
         done();
     },
     
