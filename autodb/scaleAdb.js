@@ -41,9 +41,7 @@ module.exports = {
         if(adbstorage){
             parameters.body.dataStorageSizeInTBs = adbstorage;
         }
-
-
-        conversation.reply(JSON.stringify(parameters));              
+        
         if (dbtype == 'Autonomous Datawarehouse') {
                    oci.database.autonomousDataWarehouse.update( auth.authorization, parameters, function(response){result = response; doneAsync = true;});
                    require('deasync').loopWhile(function(){return !doneAsync;});
