@@ -45,7 +45,7 @@ var authorization={
     userId : 'ocid1.user.oc1..aaaaaaaazb5whfq2tykmhjjsbzlthbpkc6ido2zat7vkkn2g7eo2xcdozcua',
     keyFingerprint : 'bc:0b:7c:85:0b:83:b9:33:ea:8a:f0:ee:be:b5:2d:12',
     RESTversion : '/20160918',
-    region: 'us-ashburn-1',
+    region: 'us-phoenix-1',
     privateKeyPath : path.join(__dirname)
 };
 

@@ -1,6 +1,6 @@
 "use strict";
 
-var oci = require( './oci' );
+var oci = require( './OCI-Rest-APIs-nodejs/oci' );
 var auth = require('./auth');
 
 module.exports = {

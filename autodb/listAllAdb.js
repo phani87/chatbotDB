@@ -1,12 +1,12 @@
 "use strict";
 
-var oci = require( './oci' );
+var oci = require( './OCI-Rest-APIs-nodejs/oci' );
 var auth = require('./auth');
 
 module.exports = {
 
     metadata: () => ({
-        "name": "listAllDatabases",
+        "name": "listAllAdb",
         "properties": {
             "dbtype": { "type": "string", "required": true },
             "dblist": { "type": "string", "required": false }
@@ -21,6 +21,7 @@ module.exports = {
          var res="";
          var status="";
          var id ="";
+         var dbocids = "";
          var dbtype = conversation.properties().dbtype;
          if (dbtype == 'Autonomous Datawarehouse') {
                     oci.database.autonomousDataWarehouse.list( auth.authorization, {compartmentId: auth.compOCID }, function(response){result = response; doneAsync = true;});
@@ -34,30 +35,24 @@ module.exports = {
                     conversation.reply({text: 'Please select appropriate option'});
                 }
         for(var j =0; j< result.length; j++){
-            if(j == 0){
-                res = res.concat(JSON.stringify(result[j].dbName)+'-'+JSON.stringify(result[j].lifecycleState));
-                // status = status.concat(JSON.stringify(result[j].lifecycleState));
-                // id = id.concat(JSON.stringify(result[j].id));
-            }else{
-                res = res.concat(','+JSON.stringify(result[j].dbName)+'-'+JSON.stringify(result[j].lifecycleState));
-                // status = status.concat(','+JSON.stringify(result[j].lifecycleState));
-                // id = id.concat(','+JSON.stringify(result[j].id));
-            }
-            
+            res = res + ( res == "" ? '' : ',' ) + result[j].dbName +' - '+ result[j].lifecycleState;
+            dbocids = dbocids +(dbocids == "" ? '':',') + result[j].dbName + '-'+result[j].id;   
         }
         conversation.variable("dblist", res);
+        conversation.variable("adbocids", dbocids);
         conversation.keepTurn(true);
         conversation.transition();
         done();
     },
 
-//     invoke: (dbtype) => {
+//     invoke: () => {
 //         console.log('Calling List Status Method')
 //         var doneAsync = false;
 //         var result;
 //         var res="";
 //         var status="";
 //         var id ="";
+//         var dbtype = 'Autonomous Datawarehouse';
 //         //var dbtype = conversation.properties().dbtype;
 //         if (dbtype == 'Autonomous Datawarehouse') {
 //                    oci.database.autonomousDataWarehouse.list( auth.authorization, {compartmentId: auth.compOCID }, function(response){result = response; doneAsync = true;});

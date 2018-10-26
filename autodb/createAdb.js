@@ -1,6 +1,6 @@
 "use strict";
 
-var oci = require( './oci' );
+var oci = require( './OCI-Rest-APIs-nodejs/oci' );
 var auth = require('./auth');
 
 
@@ -61,14 +61,15 @@ module.exports = {
         if (adbtype == 'Autonomous Datawarehouse') {
             oci.database.autonomousDataWarehouse.create( auth.authorization, parameters, function(response){result = response; doneAsync = true;});
             require('deasync').loopWhile(function(){return !doneAsync;});
+            conversation.reply(`Creating Autonomous Warehouse : ${JSON.stringify(result.dbName)}`);
         } else if (adbtype == 'Autonomous Transaction Processing'){
             oci.database.autonomousDatabase.create( auth.authorization, parameters, function(response){result = response; doneAsync = true;});
             require('deasync').loopWhile(function(){return !doneAsync;});
+            conversation.reply(`Creating Autonomous Transaction Processing  : ${JSON.stringify(result.dbName)}`);
         }else {
             conversation.reply({text: 'Please select appropriate option'});
         }
-
-        conversation.reply(`done creating db : ${JSON.stringify(result.dbName)}`);
+       
         conversation.keepTurn(true);
         conversation.transition();
         done();
