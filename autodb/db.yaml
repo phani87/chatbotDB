@@ -11,6 +11,15 @@ context:
     adbname : "string"
     adbusername : "AdbUsername"
     adbdisplayname : "string"
+    adbactions : "AdbActions"
+    adbocids : "string"
+    adbdetails : "string"
+    adbaction : "string"
+    updateadboptns : "updateAdbOptns"
+    updateadboptn : "string"
+    scaleoptions : "scaleOptions"
+    mailId : "string"
+    walletname : "string"
     
     dbusername: "string"
     dbpasswd : "string"
@@ -147,8 +156,9 @@ states:
       adbusername: "${adbusername.value}"
       adbpasswd : "${adbpasswd.value}"
     transitions: 
-      next: "phani"
+      next: "cont"
       
+# list atutonomous databases      
   listDbstatus:
     component : "System.List"
     properties:
@@ -164,7 +174,7 @@ states:
       variable: "adbtype"
     transitions: {}
   listAllStatus:
-    component: listAllDatabases 
+    component: listAllAdb 
     properties:
       dbtype: "${adbtype.value}"
     transitions: {}
@@ -174,9 +184,156 @@ states:
       options : "${dblist.value}"
       prompt: "Select the database for more details"
       variable : "dbchkstatus"
+    transitions: {}
+  getAdbDetails :
+    component : getAdb
+    properties :
+      adbocids : "${adbocids.value}"
+      dbchkstatus : "${dbchkstatus.value}"
+      adbtype : "${adbtype.value}"
+    transitions : {}
+  performAction:
+    component : "System.List"
+    properties :
+      options : "${adbactions.type.enumValues}"
+      prompt: "DB Details : ${adbdetails.value}"
+      variable : "adbaction"
+    transitions: {}
+  checkAction:
+    component: "System.Switch"
+    properties:
+      variable: "adbaction"
+      source : "${adbaction.value}"
+      values: 
+        - "Terminate"
+        - "Update Autonomous Database"
+    transitions:
+      actions:
+        Terminate: "killAdb"
+        Update Autonomous Database: "updateAdb"
+  killAdb :
+    component : killAdb
+    properties :
+      adbocids : "${adbocids.value}"
+      adbtype : "${adbtype.value}"
     transitions: 
-        next: "phani"
-      
+      next: "cont"
+  updateAdb:
+    component : "System.List"
+    properties :
+      prompt : "What update do you want to make to your Autonomous Database"
+      options : "${updateadboptns.type.enumValues}"
+      variable : "updateadboptn"
+    transitions : {}
+  checkUpdateAction:
+    component: "System.Switch"
+    properties:
+      variable: "updateadboptn"
+      source : "${updateadboptn.value}"
+      values: 
+        - "Change Password"
+        - "Generate Wallet"
+        - "Scale Up/Down"
+    transitions:
+      actions:
+        Change Password: "getUAdbPassword"
+        Generate Wallet : "generateWalletMail"
+        Scale Up/Down: "scaleAdb"
+  generateWalletMail:
+    component : "System.Text"
+    properties:
+      prompt : "Please enter the mail id to send the wallet file"
+      variable : "mailId"
+    transitions : {}
+  generateWalletPasswd:
+    component : "System.Text"
+    properties:
+      prompt : "Please enter the wallet password"
+      variable : "adbpasswd"
+    transitions : {}
+  generateWallet:
+    component : getAdbWallet
+    properties:
+      adbocids : "${adbocids.value}"
+      adbpasswd : "${adbpasswd.value}"
+      adbtype : "${adbtype.value}"
+      mailId : "${mailId.value}"
+    transitions : {}
+  confirmMail :
+    component : "System.List"
+    properties : 
+      prompt : "Please confirm to send wallet file ${walletname.value}"
+      options : "${answer.type.enumValues}"
+      variable : "answer"
+    transitions : {}
+  checkMailAction:
+    component: "System.Switch"
+    properties:
+      variable: "answer"
+      source : "${answer.value}"
+      values: 
+        - "Yes"
+        - "No"
+    transitions:
+      actions:
+        Yes: "sendMail"
+        No: "cont"
+  sendMail:
+    component : sendEmail
+    properties : 
+      attachmentName : "${walletname.value}"
+      mailId : "${mailId.value}"
+    transitions :
+      next : "cont"     
+  getUAdbPassword :
+    component: "System.Text"
+    properties:
+      prompt: "Set you DB admin password. It has to be 12 characters long, 2 Capital Letters, 2 Small Letters, 2 Special Characters. ex. WElcome12_34#"
+      variable: "adbpasswd"
+    transitions: {}
+  scaleAdb :
+    component : "System.List"
+    properties : 
+      prompt : "What do you want to scale"
+      options : "${scaleoptions.type.enumValues}"
+    transitions : {}
+  checkScaleOptions :
+    component: "System.ConditionEquals"
+    properties:
+      variable: "scaleoptions"
+      source : "${scaleoptions.value}"
+      value: "Scale OCPUs"
+    transitions:
+      actions:
+        equal: "getUADbocpus"
+        notequal: "getUADbstorage"
+  getUADbocpus :
+    component: "System.Text"
+    properties:
+      prompt: "How many OCPUs? Note: Max OCPUs <= 128"
+      variable: "adbocpus"
+    transitions: 
+      actions :
+        update : "updateAdb"
+  getUADbstorage :
+    component: "System.Text"
+    properties:
+      prompt: "How much Storage? Note: Max Storage <= 128 TB"
+      variable: "adbstorage"
+    transitions: 
+      actions:
+        update : "updateAdb"
+  changeAdb :
+    component : scaleAdb
+    properties :
+      adbocids : "${adbocids.value}"
+      adbtype : "${adbtype.value}"
+      adbpasswd : "${adbpasswd.value}"
+      adbocpus : "${adbocpus.value}"
+      adbstorage : "${adbstorage.value}"
+    transitions :
+      next : "cont"
+   
 
 #Database on VM
 
@@ -308,7 +465,7 @@ states:
   
    
 # Continue the flow   
-  phani:
+  cont:
     component: "System.Output" 
     properties:
       text: "Do you want something else?"
