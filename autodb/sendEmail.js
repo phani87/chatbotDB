@@ -3,10 +3,6 @@ var validator = require('validator');
 var path = require('path');
 var pathName = path.join(__dirname);
 var fs = require('fs');
-var logger = require('./log');
-var path = require('path');
-var fs = require('fs');
-var logger = require('./log');
 
 var transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -27,13 +23,17 @@ module.exports = {
       }),
   
 invoke: (conversation, done) => {
-  conversation.reply('starting mail module');
+  var doneAsync = false;
+  var doneAsyncFile = false;
       var attachmentName =  conversation.properties().attachmentName;
       var mailId = conversation.properties().mailId;
       var filePath = pathName + '/Wallet/' + attachmentName;
-      conversation.reply(`Filepath : ${filePath}`);
         if(validator.isEmail(mailId)) {
-          var data = fs.createReadStream(filePath);
+          var data = fs.readFile(filePath, function(callback){
+            doneAsyncFile = true;
+          });
+          require('deasync').loopWhile(function(){return !doneAsyncFile;});  
+          conversation.reply(`Setting Mail Parameters`);
           var mailOptions = {
             from: '',
             to: mailId,
@@ -41,18 +41,22 @@ invoke: (conversation, done) => {
             text: 'Please find your Wallet attached !',
             attachments: [{'filename': attachmentName, 'content': data}]
           };
-          transporter.sendMail(mailOptions, function(error, info){
+          transporter.sendMail(mailOptions, function(error){
             if (error) {
+              // conversation.reply('error found:')
+              // conversation.reply(error);
               console.log(error);
+              doneAsync = true;
             } else {
-              logger.info('Email sent: ' + patientEmail);
+              doneAsync = true;
+              conversation.reply(`Mail Sent...`); 
             }
-          });   
+          });
+          require('deasync').loopWhile(function(){return !doneAsync;});   
+          conversation.transition();
+          done();
       }    
-      conversation.reply(`Mail Sent...`)    
-      conversation.transition();
-      done();
-},
+}
   
       // invoke(){
       //     logger.info('starting');
