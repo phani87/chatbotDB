@@ -10,7 +10,8 @@ module.exports = {
    'getAdb':require('./autodb/getAdb'),
    'killAdb': require('./autodb/killAdb'),
    'scaleAdb': require('./autodb/scaleAdb'),
-   'getADBWallet': require('./autodb/getADBWallet'),
+   'getAdbWallet': require('./autodb/getAdbWallet'),
+   'sendEmail' : require('./autodb/sendEmail'),
    'createDb': require('./autodb/createDb')
   }
 };
