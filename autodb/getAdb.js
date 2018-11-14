@@ -20,6 +20,7 @@ module.exports = {
          var result;
          var res="";
          var dbid = "";
+         var adbname = '';
          var adbocids = conversation.properties().adbocids;
          var dbchkstatus = conversation.properties().dbchkstatus;
          var adbtype = conversation.properties().adbtype;
@@ -53,8 +54,9 @@ module.exports = {
                 }
          
         res = 'CPU Cores : '+result.cpuCoreCount+', Storage :' +result.dataStorageSizeInTBs;   
-    
+        adbname = result.dbName; 
         conversation.variable("adbdetails",res );
+        conversation.variable("adbname", adbname);
         conversation.variable("adbocids", dbid, );
         conversation.transition();
         done();
@@ -66,23 +68,24 @@ module.exports = {
     //     var result;
     //     var res="";
     //     var dbid ;
-    //     var adbocids = 'DB201810231549-ocid1.autonomousdwdatabase.oc1.iad.abuwcljsml6opm33do4kunrmukqsmetjb5vc6w2d37qplotg2kwtof7i6q2a';
-    //     var dbchkstatus = 'DB201810231549 - UNAVAILABLE';
+    //     var adbocids = 'DemoADW-ocid1.autonomousdwdatabase.oc1.phx.abyhqljrzxfmmlkp43cssqe2etvgenmt534jjl4dtdimig75buh72jkawrxa';
+    //     var dbchkstatus = 'DemoADW - AVAILABLE';
     //     var adbtype = 'Autonomous Datawarehouse';
 
     //     var dbchkstatus = dbchkstatus.split(" ")[0];
-    //     var adbocids = adbocids.split(',');
-    //     for(var k=0; k < adbocids.length; k++){
-    //        if (adbocids[k].startsWith(dbchkstatus)){
-    //         adbocids = adbocids[k].split('-')[1];
-    //        }
+    //      var adbocids = adbocids.split(',');
+    //      for(var k=0; k < adbocids.length; k++){
+    //         if (adbocids[k].startsWith(dbchkstatus)){
+    //             dbid = adbocids[k].split('-')[1];
+    //         }
+    //      }
+
+    //     console.log('DBID::   ',dbid);
+
+    //     var parameters = {
+    //         compartmentId: auth.compOCID,
+    //         autonomousDataWarehouseId : dbid
     //     }
-
-    //     console.log(adbocids);
-
-    //    var parameters = {
-    //        autonomousDataWarehouseId : 'ocid1.autonomousdwdatabase.oc1.iad.abuwcljsml6opm33do4kunrmukqsmetjb5vc6w2d37qplotg2kwtof7i6q2a'
-    //    }
 
         
     //     if (adbtype == 'Autonomous Datawarehouse') {
@@ -99,8 +102,8 @@ module.exports = {
     //            }
     //    console.log(result); 
     //    res = 'CPU Cores : '+result.cpuCoreCount+', Storage :' +result.dataStorageSizeInTBs;   
-   
-    //    console.log(res);
+    //    adbname = result.dbName;   
+    //    console.log(adbname);
     // },
 };
 

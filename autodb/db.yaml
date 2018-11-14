@@ -20,6 +20,7 @@ context:
     scaleoptions : "scaleOptions"
     mailId : "string"
     walletname : "string"
+    confirmTerminate : "string"
     
     dbusername: "string"
     dbpasswd : "string"
@@ -59,7 +60,6 @@ states:
     properties:
       variable: "iResult"
       confidenceThreshold: 0.4
-      optionsPrompt: "Hey, what can I do for you?"   
     transitions:
       actions:
         StartDBProvisioning: "startdb"
@@ -207,10 +207,32 @@ states:
       values: 
         - "Terminate"
         - "Update Autonomous Database"
+        - "quit"
     transitions:
       actions:
-        Terminate: "killAdb"
+        Terminate: "confirmKill"
         Update Autonomous Database: "updateAdb"
+        quit : "cont"
+  confirmKill :
+    component : "System.List"
+    properties :
+      prompt : "Do you want to Terminate ${adbname.value}"
+      options : "Yes,No"
+      variable : "confirmTerminate"
+    transitions: {}
+  checkKill :
+    component: "System.Switch"
+    properties:
+      variable: "confirmTerminate"
+      source : "${confirmTerminate.value}"
+      values: 
+        - "Yes"
+        - "No"
+        - "quit"
+    transitions:
+      actions:
+        Yes: "killAdb"
+        No: "cont"
   killAdb :
     component : killAdb
     properties :
@@ -234,11 +256,13 @@ states:
         - "Change Password"
         - "Generate Wallet"
         - "Scale Up/Down"
+        - "quit"
     transitions:
       actions:
         Change Password: "getUAdbPassword"
         Generate Wallet : "generateWalletMail"
         Scale Up/Down: "scaleAdb"
+        quit: "cont"
   generateWalletMail:
     component : "System.Text"
     properties:
@@ -283,8 +307,8 @@ states:
     properties : 
       attachmentName : "${walletname.value}"
       mailId : "${mailId.value}"
-    transitions :
-      next : "cont"     
+    transitions :  
+      next : "cont"
   getUAdbPassword :
     component: "System.Text"
     properties:
@@ -468,9 +492,9 @@ states:
   cont:
     component: "System.Output" 
     properties:
-      text: "Do you want something else?"
+      text: "Say hi to start over"
     transitions:
-      return: "intent"
+      return : "intent"
   canceldb:
     component: "System.Output"
     properties:
